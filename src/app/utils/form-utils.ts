@@ -1,7 +1,11 @@
-import { FormArray, FormGroup, ValidationErrors } from "@angular/forms";
+import { AbstractControl, FormArray, FormGroup, ValidationErrors } from "@angular/forms";
 
 export class FormUtils {
 
+  //Expresiones Regulares
+  static namePattern = '^([a-zA-Z]+) ([a-zA-Z]+)$';
+  static emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$';
+  static notOnlySpacesPattern = '^[a-zA-Z0-9]+$';
 
   static getTextError(errors: ValidationErrors){
 
@@ -15,6 +19,27 @@ export class FormUtils {
 
         case 'min':
           return `El valor mínimo es de ${ errors['min'].min }`
+
+        case 'email':
+          return 'El valor introducido no es un correo electrónico válido'
+
+        case 'pattern':
+
+        if(errors['pattern'].requiredPattern === FormUtils.emailPattern){
+            return 'El valor introducido no es un correo electrónico válido'
+        }
+
+        if(errors['pattern'].requiredPattern === FormUtils.namePattern){
+            return 'Debe tener formato Nombre Apellido'
+        }
+        if(errors['pattern'].requiredPattern === FormUtils.notOnlySpacesPattern){
+            return 'El nombre de usuario no puede contener espacios'
+        }
+
+        return 'Error de validación de expresión regular'
+
+        default:
+          return `Error no controlado ${key}`
       }
     }
 
@@ -57,6 +82,16 @@ export class FormUtils {
 
   return FormUtils.getTextError(errors);
 
+  }
+
+  //Validación Personalizada
+  static isFieldOneEqualToFieldTwo(field1: string, field2: string){
+    return ( formGroup: AbstractControl) => {
+      const field1Value = formGroup.get(field1)?.value;
+      const field2Value = formGroup.get(field2)?.value;
+
+      return field1Value === field2Value ? null : { fieldsNotEqual: true }
+    };
   }
 
 
