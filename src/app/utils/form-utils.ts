@@ -1,5 +1,15 @@
 import { AbstractControl, FormArray, FormGroup, ValidationErrors } from "@angular/forms";
 
+//Espera 2,5 segundos antes de devolver true, simulando una petición y recepción de respuesta de nuestro backend
+async function sleep(){
+ return new Promise( resolve =>{
+  setTimeout(()=>{
+    resolve(true);
+  }, 2500);
+ });
+}
+
+
 export class FormUtils {
 
   //Expresiones Regulares
@@ -37,6 +47,12 @@ export class FormUtils {
         }
 
         return 'Error de validación de expresión regular'
+
+        case 'emailTaken':
+          return 'Este correo electrónico ya está siendo usado'
+
+        case 'restrictedName':
+          return 'Este nombre de usuario está restringido'
 
         default:
           return `Error no controlado ${key}`
@@ -92,6 +108,36 @@ export class FormUtils {
 
       return field1Value === field2Value ? null : { fieldsNotEqual: true }
     };
+  }
+
+  static async checkingServerResponse(control: AbstractControl): Promise<ValidationErrors | null>{
+
+    await sleep(); // 2,5 segundos
+
+    const formValue = control.value;
+
+    if(formValue === 'hola@mundo.com'){
+      return {
+        emailTaken: true,
+      }
+    }
+
+    return null;
+
+  }
+
+  static restrictedUserName(control: AbstractControl): ValidationErrors | null{
+
+    const userName = control.value;
+
+    if(userName === 'strider'){
+      return {
+        restrictedName: true,
+      }
+    }
+
+    return null;
+
   }
 
 
